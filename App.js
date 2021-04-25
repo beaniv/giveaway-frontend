@@ -28,7 +28,7 @@ export default class App extends React.Component {
         <TouchableOpacity>
           <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginBtn}>
+        <TouchableOpacity style={styles.loginBtn} onPress={() => console.log(this.state.password)}>
           <Text style={styles.loginText}>LOGIN</Text>
         </TouchableOpacity>
         <TouchableOpacity>
