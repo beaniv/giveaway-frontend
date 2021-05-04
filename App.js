@@ -1,21 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 
-export default class App extends React.Component {
-  state={
-    email:"",
-    password:""
-  }
-  render(){
-    return (
-      <View style={styles.container}>
+import HomeScreen from './src/home_screen';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+const Stack = createStackNavigator();
+
+function WelcomeScreen({ navigation }) {
+
+  const [email, setCount] = useState(0);
+  const [password, setPass] = useState(0);
+
+  return (
+    <View style={styles.container}>
         <Text style={styles.logo}>GiveawayApp</Text>
         <View style={styles.inputView} >
           <TextInput  
             style={styles.inputText}
             placeholder="Email..." 
             placeholderTextColor="#003f5c"
-            onChangeText={text => this.setState({email:text})}/>
+            onChangeText={text => setCount(text)}/>
         </View>
         <View style={styles.inputView} >
           <TextInput  
@@ -23,12 +29,31 @@ export default class App extends React.Component {
             style={styles.inputText}
             placeholder="Password..." 
             placeholderTextColor="#003f5c"
-            onChangeText={text => this.setState({password:text})}/>
+            onChangeText={text => setPass(text)}/>
         </View>
         <TouchableOpacity>
           <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginBtn} onPress={() => console.log(this.state.password)}>
+        <TouchableOpacity 
+        style={styles.loginBtn} 
+        onPress={() => 
+          //navigation.navigate('HomeScreen')
+
+          fetch('http://172.20.10.2:8443/api/v1/auth/sign-up', {
+          method: 'POST',
+          headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+          'email': 'shlooha@gmail.com',
+          'name': 'debil',
+          'password': 'debil',
+          'patronymic': 'debil',
+          'surname': 'debil',
+          })
+          })
+        }>
           <Text style={styles.loginText}>LOGIN</Text>
         </TouchableOpacity>
         <TouchableOpacity>
@@ -37,6 +62,18 @@ export default class App extends React.Component {
 
   
       </View>
+  );
+}
+
+export default class App extends React.Component {
+  render(){
+    return (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
     );
   }
 }
