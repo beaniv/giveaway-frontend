@@ -1,76 +1,124 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 
-import HomeScreen from './src/home_screen';
+import HomeScreen from "./src/home_screen";
+import SignupScreen from "./src/signup_screen";
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
 const Stack = createStackNavigator();
 
-function WelcomeScreen({ navigation }) {
+class GiveawayCard {
+  id;
+  title;
+  description;
+  prize;
+  imageUrl;
 
+  constructor(id, title, description, prize, imageUrl) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.prize = prize;
+    this.imageUrl = imageUrl;
+  }
+}
+
+function WelcomeScreen({ navigation }) {
   const [email, setCount] = useState(0);
   const [password, setPass] = useState(0);
 
   return (
     <View style={styles.container}>
-        <Text style={styles.logo}>GiveawayApp</Text>
-        <View style={styles.inputView} >
-          <TextInput  
-            style={styles.inputText}
-            placeholder="Email..." 
-            placeholderTextColor="#003f5c"
-            onChangeText={text => setCount(text)}/>
-        </View>
-        <View style={styles.inputView} >
-          <TextInput  
-            secureTextEntry
-            style={styles.inputText}
-            placeholder="Password..." 
-            placeholderTextColor="#003f5c"
-            onChangeText={text => setPass(text)}/>
-        </View>
-        <TouchableOpacity>
-          <Text style={styles.forgot}>Forgot Password?</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-        style={styles.loginBtn} 
-        onPress={() => 
-          //navigation.navigate('HomeScreen')
-
-          fetch('http://172.20.10.2:8443/api/v1/auth/sign-up', {
-          method: 'POST',
-          headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-          'email': 'shlooha@gmail.com',
-          'name': 'debil',
-          'password': 'debil',
-          'patronymic': 'debil',
-          'surname': 'debil',
-          })
-          })
-        }>
-          <Text style={styles.loginText}>LOGIN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.loginText}>Signup</Text>
-        </TouchableOpacity>
-
-  
+      <Text style={styles.logo}>GiveawayApp</Text>
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.inputText}
+          placeholder="Email..."
+          placeholderTextColor="#003f5c"
+          onChangeText={(text) => setCount(text)}
+        />
       </View>
+      <View style={styles.inputView}>
+        <TextInput
+          secureTextEntry
+          style={styles.inputText}
+          placeholder="Password..."
+          placeholderTextColor="#003f5c"
+          onChangeText={(text) => setPass(text)}
+        />
+      </View>
+      <TouchableOpacity>
+        <Text style={styles.forgot}>Forgot Password?</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.loginBtn}
+        onPress={() =>
+          fetch("http://172.20.10.2:8443/api/v1/auth/sign-in", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              login: email,
+              password: password,
+            }),
+          }).then((response) => {
+            //console.log(response.status);
+            if (response.status == 200) {
+              fetch("http://172.20.10.2:8443/api/v1/complex-requests/get-posts")
+                .then((response) => response.json())
+                .then((json) => {
+                  var cards = new Array();
+                  for (var i = 0; i < json.length; i++) {
+                    var giveawayCard = new GiveawayCard(
+                      json[i]["id"],
+                      json[i]["title"],
+                      json[i]["description"],
+                      json[i]["prize"],
+                      json[i]["imageUrl"]
+                    );
+                    cards.push(giveawayCard);
+                  }
+
+                  navigation.navigate("HomeScreen", {
+                    giveawayCards: cards,
+                  });
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
+            } else {
+              alert("Access Denied");
+              return;
+            }
+          })
+        }
+      >
+        <Text style={styles.loginText}>LOGIN</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("SignupScreen")}>
+        <Text style={styles.loginText}>Signup</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 export default class App extends React.Component {
-  render(){
+  render() {
     return (
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+          <Stack.Screen name="SignupScreen" component={SignupScreen} />
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -81,44 +129,44 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#003f5c',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#003f5c",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  logo:{
-    fontWeight:"bold",
-    fontSize:50,
-    color:"#fb5b5a",
-    marginBottom:40
+  logo: {
+    fontWeight: "bold",
+    fontSize: 50,
+    color: "#fb5b5a",
+    marginBottom: 40,
   },
-  inputView:{
-    width:"80%",
-    backgroundColor:"#465881",
-    borderRadius:25,
-    height:50,
-    marginBottom:20,
-    justifyContent:"center",
-    padding:20
+  inputView: {
+    width: "80%",
+    backgroundColor: "#465881",
+    borderRadius: 25,
+    height: 50,
+    marginBottom: 20,
+    justifyContent: "center",
+    padding: 20,
   },
-  inputText:{
-    height:50,
-    color:"white"
+  inputText: {
+    height: 50,
+    color: "white",
   },
-  forgot:{
-    color:"white",
-    fontSize:11
+  forgot: {
+    color: "white",
+    fontSize: 11,
   },
-  loginBtn:{
-    width:"80%",
-    backgroundColor:"#fb5b5a",
-    borderRadius:25,
-    height:50,
-    alignItems:"center",
-    justifyContent:"center",
-    marginTop:40,
-    marginBottom:10
+  loginBtn: {
+    width: "80%",
+    backgroundColor: "#fb5b5a",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    marginBottom: 10,
   },
-  loginText:{
-    color:"white"
-  }
+  loginText: {
+    color: "white",
+  },
 });
