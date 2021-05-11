@@ -38,22 +38,26 @@ function SignupScreen({ navigation }) {
       </View>
       <TouchableOpacity
         style={styles.loginBtn}
-        onPress={
-          () =>
-            fetch("http://172.20.10.2:8443/api/v1/auth/sign-up", {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: email,
-                name: "debil",
-                password: password,
-                patronymic: "debil",
-                surname: "debil",
-              }),
-            }) //.then(navigation.navigate("HomeScreen"))
+        onPress={() =>
+          fetch("http://172.20.10.5:8443/api/v1/auth/sign-up", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+            }),
+          }).then((response) => {
+            if (response.status == 200) {
+              navigation.navigate("WelcomeScreen");
+            } else {
+              alert("Access Denied");
+              console.log(response.status);
+              return;
+            }
+          })
         }
       >
         <Text style={styles.loginText}>Signup</Text>
