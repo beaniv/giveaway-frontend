@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,9 @@ import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { CardEcomFour, CardThree } from "react-native-card-ui";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
+
+import DatePicker from "react-native-datepicker";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 // function renderCards() {
 //   return;
@@ -34,12 +37,14 @@ import { NavigationContainer } from "@react-navigation/native";
 //   }
 // }
 
+var tokenGlobal;
+
 function HomeScreen({ route, navigation }) {
   //const { giveawayCards, token, userId } = route.params;
   var giveawayCards = route.params.giveawayCards;
   var token = route.params.token;
   //var userId = route.params.userId;
-
+  tokenGlobal = token;
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -57,7 +62,7 @@ function HomeScreen({ route, navigation }) {
             onClickButton={() => {
               //console.log(token);
               fetch(
-                "http://172.20.10.5:8443/api/v1/posts/get-post/" + item.id,
+                "http://172.20.10.2:8443/api/v1/posts/get-post/" + item.id,
                 {
                   method: "GET",
                   headers: {
@@ -79,10 +84,14 @@ function HomeScreen({ route, navigation }) {
                     token: token,
                     description: json["description"],
                     conditions: json["conditions"],
+                    participant: json["participant"],
+                    creator: json["creator"],
+                    finished: json["finished"],
+                    winnerEmail: json["winnerEmail"],
                   });
 
                   //myGivs = myCards;
-                  //console.log(myGivs[0].title);
+                  //console.log(json["participant"]);
                 })
                 .catch((error) => {
                   console.error(error);
@@ -117,7 +126,7 @@ function MyGiveaways({ route, navigation }) {
             buttonColor={"#fb5b5a"}
             onClickButton={() => {
               fetch(
-                "http://172.20.10.5:8443/api/v1/posts/get-post/" + item.id,
+                "http://172.20.10.2:8443/api/v1/posts/get-post/" + item.id,
                 {
                   method: "GET",
                   headers: {
@@ -139,6 +148,10 @@ function MyGiveaways({ route, navigation }) {
                     token: token,
                     description: json["description"],
                     conditions: json["conditions"],
+                    participant: json["participant"],
+                    creator: json["creator"],
+                    finished: json["finished"],
+                    winnerEmail: json["winnerEmail"],
                   });
 
                   //myGivs = myCards;
@@ -152,6 +165,107 @@ function MyGiveaways({ route, navigation }) {
         ))}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function toTimestamp(strDate) {
+  var datum = Date.parse(strDate);
+  return datum;
+}
+
+function CreateGivScreen({ navigation }) {
+  const [title, setTitle] = useState(0);
+  const [prize, setPrize] = useState(0);
+  const [imageUrl, setImg] = useState(0);
+  const [description, setDescription] = useState(0);
+  const [conditions, setConds] = useState(0);
+  const [date, setDate] = useState(0);
+
+  return (
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.logo}>Create Post</Text>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Title..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text) => setTitle(text)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Image Url..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text) => setImg(text)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="MM/DD/YYYY HH:MM:SS ..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text) => setDate(text)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Prize..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text) => setPrize(text)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Conditions..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text) => setConds(text)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Description..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text) => setDescription(text)}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.loginBtn}
+          onPress={() => {
+            fetch("http://172.20.10.2:8443/api/v1/posts/add-post", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: tokenGlobal,
+              },
+              body: JSON.stringify({
+                conditions: conditions,
+                description: description,
+                finishTime: toTimestamp(date),
+                imageUrl: imageUrl,
+                prize: prize,
+                title: title,
+              }),
+            }).then((response) => {
+              if (response.status == 200) {
+                alert("Giveaway Created!");
+              } else {
+                alert("Couldn't create giveaway :^(");
+                console.log(response.status);
+                return;
+              }
+            });
+          }}
+        >
+          <Text style={styles.loginText}>Create Giveaway!</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -185,7 +299,31 @@ export default function BottomBar({ route, navigation }) {
   //console.log(giveawayCards_);
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === "HomeScreen") {
+            iconName = "albums-outline";
+          } else if (route.name === "MyGiveaways") {
+            iconName = "person-circle-outline";
+          } else if (route.name === "Create Post") {
+            iconName = "add-circle-outline";
+          }
+
+          // You can return any component that you like here!
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: "white",
+        inactiveTintColor: "gray",
+        style: {
+          backgroundColor: "#02415D", //color you want to change
+        },
+      }}
+    >
       <Tab.Screen
         name="HomeScreen"
         component={HomeScreen}
@@ -194,6 +332,7 @@ export default function BottomBar({ route, navigation }) {
           token: token_,
         }}
       />
+      <Tab.Screen name="Create Post" component={CreateGivScreen} />
       <Tab.Screen
         name="MyGiveaways"
         component={MyGiveaways}
@@ -209,8 +348,8 @@ export default function BottomBar({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#003f5c",
-    //alignItems: "center",
+    backgroundColor: "#255675",
+    alignItems: "center",
     justifyContent: "center",
   },
   container1: {
@@ -230,9 +369,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontWeight: "bold",
-    fontSize: 50,
+    fontSize: 40,
     color: "#fb5b5a",
-    marginBottom: 40,
+    marginBottom: 35,
+    marginTop: 20,
   },
   image: {
     flex: 1,
@@ -263,8 +403,8 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 40,
-    marginBottom: 10,
+    marginTop: 20,
+    marginBottom: 20,
   },
   loginText: {
     color: "white",

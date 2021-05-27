@@ -30,69 +30,188 @@ const Post = ({ navigation, route }) => {
   var token = route.params.token;
   var description = route.params.description;
   var conditions = route.params.conditions;
+  var participant = route.params.participant;
+  var creator = route.params.creator;
+  var finished = route.params.finished;
+  var winnerEmail = route.params.winnerEmail;
 
   const image = {
     uri: imageUri,
   };
 
-  return (
-    <View style={{ backgroundColor: "#003f5c", flex: 1 }}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={{ backgroundColor: "#003f5c" }}
-      >
-        <ImageBackground source={image} style={styles.image}>
-          <Text style={styles.TagLine}>{title}</Text>
-          <Text style={styles.Placename}>Выиграй: {priz}</Text>
-        </ImageBackground>
+  //console.log(participant);
 
-        <Text
-          style={{
-            padding: 14,
-            fontSize: 20,
-            fontWeight: "bold",
-            color: "white",
-          }}
-        >
-          О конкурсе
-        </Text>
-        <Text style={styles.detailText}>{description}</Text>
+  if (!creator) {
+    if (participant) {
+      return (
+        <View style={{ backgroundColor: "#003f5c", flex: 1 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{ backgroundColor: "#003f5c" }}
+          >
+            <ImageBackground source={image} style={styles.image}>
+              <Text style={styles.TagLine}>{title}</Text>
+              <Text style={styles.Placename}>Выиграй: {priz}</Text>
+            </ImageBackground>
 
-        <Text
-          style={{
-            padding: 14,
-            fontSize: 20,
-            fontWeight: "bold",
-            color: "white",
-          }}
-        >
-          Условия
-        </Text>
-        <Text style={styles.detailText}>{conditions}</Text>
+            <Text style={styles.Placename}>
+              {winnerEmail == "" ? "" : "Победитель: " + winnerEmail}
+            </Text>
 
-        <TouchableOpacity
-          style={styles.Btn}
-          onPress={() => {
-            fetch("http://172.20.10.5:8443/api/v1/posts/add-user-to-post", {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: token,
-              },
-              body: JSON.stringify({
-                id: id,
-                //userID: userId,
-              }),
-            }).then((response) => console.log(response.status));
-            alert("Вы теперь участник!");
-          }}
+            <Text
+              style={{
+                padding: 14,
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              О конкурсе
+            </Text>
+            <Text style={styles.detailText}>{description}</Text>
+
+            <Text
+              style={{
+                padding: 14,
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              Условия
+            </Text>
+            <Text style={styles.detailText}>{conditions}</Text>
+
+            <TouchableOpacity
+              style={styles.Btn}
+              onPress={() => {
+                fetch("http://172.20.10.2:8443/api/v1/posts/add-user-to-post", {
+                  method: "POST",
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                  },
+                  body: JSON.stringify({
+                    id: id,
+                    //userID: userId,
+                  }),
+                }).then((response) => console.log(response.status));
+                alert("Вы теперь участник!");
+              }}
+            >
+              <Text style={styles.TagLine}>Отменить участие</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      );
+    } else {
+      return (
+        <View style={{ backgroundColor: "#003f5c", flex: 1 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{ backgroundColor: "#003f5c" }}
+          >
+            <ImageBackground source={image} style={styles.image}>
+              <Text style={styles.TagLine}>{title}</Text>
+              <Text style={styles.Placename}>Выиграй: {priz}</Text>
+            </ImageBackground>
+
+            <Text style={styles.Placename}>
+              {winnerEmail == "" ? "" : "Победитель: " + winnerEmail}
+            </Text>
+
+            <Text
+              style={{
+                padding: 14,
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              О конкурсе
+            </Text>
+            <Text style={styles.detailText}>{description}</Text>
+
+            <Text
+              style={{
+                padding: 14,
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "white",
+              }}
+            >
+              Условия
+            </Text>
+            <Text style={styles.detailText}>{conditions}</Text>
+
+            <TouchableOpacity
+              style={styles.Btn}
+              onPress={() => {
+                fetch("http://172.20.10.2:8443/api/v1/posts/add-user-to-post", {
+                  method: "POST",
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                  },
+                  body: JSON.stringify({
+                    id: id,
+                    //userID: userId,
+                  }),
+                }).then((response) => console.log(response.status));
+                alert("Вы теперь участник!");
+              }}
+            >
+              <Text style={styles.TagLine}>Участвовать</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      );
+    }
+  } else {
+    return (
+      <View style={{ backgroundColor: "#003f5c", flex: 1 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ backgroundColor: "#003f5c" }}
         >
-          <Text style={styles.TagLine}>Участвовать</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
-  );
+          <ImageBackground source={image} style={styles.image}>
+            <Text style={styles.TagLine}>{title}</Text>
+            <Text style={styles.Placename}>Выиграй: {priz}</Text>
+          </ImageBackground>
+
+          <Text style={styles.Placename}>
+            {winnerEmail == "" ? "" : "Победитель: " + winnerEmail}
+          </Text>
+
+          <Text
+            style={{
+              padding: 14,
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "white",
+            }}
+          >
+            О конкурсе
+          </Text>
+          <Text style={styles.detailText}>{description}</Text>
+
+          <Text
+            style={{
+              padding: 14,
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "white",
+            }}
+          >
+            Условия
+          </Text>
+          <Text style={styles.detailText}>{conditions}</Text>
+        </ScrollView>
+      </View>
+    );
+  }
 };
 
 const styles = StyleSheet.create({

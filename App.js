@@ -65,7 +65,7 @@ function WelcomeScreen({ navigation }) {
         onPress={() => {
           var token;
           //var userId;
-          fetch("http://172.20.10.5:8443/api/v1/auth/sign-in", {
+          fetch("http://172.20.10.2:8443/api/v1/auth/sign-in", {
             method: "POST",
             headers: {
               Accept: "application/json",
@@ -85,7 +85,7 @@ function WelcomeScreen({ navigation }) {
               //res = await response.json();
               //console.log(res);
               //if (response.status == 200) {
-              fetch("http://172.20.10.5:8443/api/v1/posts/get-posts", {
+              fetch("http://172.20.10.2:8443/api/v1/posts/get-posts", {
                 method: "GET",
                 headers: {
                   Accept: "application/json",
@@ -108,7 +108,7 @@ function WelcomeScreen({ navigation }) {
                   }
                   var myGivs = new Array();
                   //console.log(json["token"]);
-                  fetch("http://172.20.10.5:8443/api/v1/posts/get-my-posts", {
+                  fetch("http://172.20.10.2:8443/api/v1/posts/get-my-posts", {
                     method: "GET",
                     headers: {
                       Accept: "application/json",
